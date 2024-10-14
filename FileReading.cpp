@@ -9,6 +9,7 @@ void readAdjacencies(std::ifstream &in, std::map<std::string, std::vector<std::s
 
         ss >> city1 >> city2;
 
+        // Should be bidirectional, so add to both
         adjacencyMap[city1].push_back(city2);
         adjacencyMap[city2].push_back(city1);
     }
@@ -37,7 +38,6 @@ std::map<std::string, std::vector<std::string>> fillAdjacencies(std::string file
         }
 
         readAdjacencies(in, adjacencyMap);
-        printAdjacencies(adjacencyMap);
         in.close();
     }
     catch (std::runtime_error &e) {
@@ -84,7 +84,6 @@ std::map<std::string, std::pair<double, double>> fillCoordinates(std::string fil
         }
 
         readCoordinates(in, coordinateMap);
-        printCoordinates(coordinateMap);
         in.close();
     }
     catch (std::runtime_error &e) {

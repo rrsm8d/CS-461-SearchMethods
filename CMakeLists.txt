@@ -9,7 +9,9 @@ add_executable(CS-461-SearchMethods main.cpp
     FileReading.h
     FileReading.cpp
     coordinates.csv
-    Adjacencies.txt)
+    Adjacencies.txt
+    SearchFunctions.h
+    SearchFunctions.cpp)
 
 include(GNUInstallDirs)
 install(TARGETS CS-461-SearchMethods

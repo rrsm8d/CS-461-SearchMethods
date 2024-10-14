@@ -2,4 +2,4 @@
 
 **THIS ISN'T DONE YET!!!**
 
-As of the latest commit, only file reading and parsing is completed.
+As of the latest commit, undirected searches are done but not A* or best-first search

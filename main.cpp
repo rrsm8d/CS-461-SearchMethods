@@ -17,6 +17,8 @@ int main()
         std::cout << std::endl;
         IDDFS(adjacencyMap, "Abilene", "Wichita", 100);
         std::cout << std::endl;
+        std::vector<std::string> path = AStarSearch(adjacencyMap, coordinateMap, "Abilene", "Wichita");
+        // TO-DO: Test outputs
     }
     catch (std::runtime_error &e) {
         std::cout << e.what() << std::endl;

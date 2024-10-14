@@ -4,6 +4,7 @@ void readAdjacencies(std::ifstream &in, std::map<std::string, std::vector<std::s
     std::string readString;
     std::string city1, city2;
 
+    // Read each line of the file, and add info from each line to the map
     while(std::getline(in, readString)) {
         std::stringstream ss(readString);
 
@@ -17,12 +18,14 @@ void readAdjacencies(std::ifstream &in, std::map<std::string, std::vector<std::s
 }
 
 void printAdjacencies(std::map<std::string, std::vector<std::string>> &adjacencyMap) {
-    for(const auto &entry : adjacencyMap) {
-        std::cout << entry.first << ": ";
-        for(const auto &adjacentCity : entry.second) {
+
+    // For each key, print it's values
+    for(const auto &city : adjacencyMap) {
+        std::cout << city.first << ": ";
+        for(const auto &adjacentCity : city.second) {
             std::cout << adjacentCity << " ";
         }
-        std::cout << std::endl;
+        std::cout << std::endl << std::endl;
     }
 }
 
@@ -51,9 +54,12 @@ void readCoordinates(std::ifstream &in, std::map<std::string, std::pair<double, 
     std::string city;
     double xCoord, yCoord;
 
+    // Read each line
     while(std::getline(in, readString)) {
         std::stringstream ss(readString);
         std::string tempString;
+
+        // Reading values seperated by commas
         // Not pretty, but fuck I forgot how to read from a csv with stringstream and I'm tired
         std::getline(ss, city, ',');
         std::getline(ss, tempString, ',');
@@ -67,9 +73,12 @@ void readCoordinates(std::ifstream &in, std::map<std::string, std::pair<double, 
 }
 
 void printCoordinates(std::map<std::string, std::pair<double, double>> &coordinateMap) {
-    for(const auto &entry : coordinateMap) {
-        std::cout << entry.first << ": " << entry.second.first << " " << entry.second.second << std::endl;
+
+    // For each value, print the city and it's coordinates
+    for(const auto &city : coordinateMap) {
+        std::cout << city.first << ": " << city.second.first << " " << city.second.second << std::endl;
     }
+    std::cout << std::endl << std::endl;
 }
 
 std::map<std::string, std::pair<double, double>> fillCoordinates(std::string filename = "coordinates.csv") {

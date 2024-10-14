@@ -11,15 +11,19 @@
 #include <limits>
 #include <algorithm> // for std::reverse
 
+
+// PRE: A filled map of adjacent cities, a selected starting point
+// POST: Will print the path taken
 void BFS(const std::map<std::string, std::vector<std::string>> &adjacencyMap, std::string startCity);
 
 //
 
-// Old, don't like how I implemented it
-// void DFS(const std::map<std::string, std::vector<std::string>> &adjacencyMap, std::string start);
-
+// PRE: A filled map of adjacent cities, the chosen path from the previous recursive call, the current path taken
+// POST: Either recursively call itself or return when queue is empty
 void DFSRecursive(const std::map<std::string, std::vector<std::string>> &adjacencyMap, std::string currentCity, std::set<std::string> &visited);
 
+// PRE: A filled map of adjacent cities, a selected start point
+// POST: Will print the path taken
 void DFS(const std::map<std::string, std::vector<std::string>> &adjacencyMap, std::string startCity);
 
 //

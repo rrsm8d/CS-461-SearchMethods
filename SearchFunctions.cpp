@@ -8,13 +8,16 @@ void BFS(const std::map<std::string, std::vector<std::string>> &adjacencyMap, st
     toVisit.push(startCity);
     visited.insert(startCity);
 
+    // Until it's impossible to progress, keep adding more
     while(!toVisit.empty()) {
         std::string currentCity = toVisit.front();
+        // We visited it, now remove it
         toVisit.pop();
         std::cout << currentCity << " ";
 
-        // Iterate through the vector value at currentCity
+        // Look at the adjacent cities of the current city that was dequeued
         for(const auto& adjacentCity : adjacencyMap.at(currentCity)) {
+            // If an adjacent city wasn't visited, then mark as visited and insert it to the queue
             if(visited.find(adjacentCity) == visited.end()) {
                 toVisit.push(adjacentCity);
                 visited.insert(adjacentCity);
@@ -25,31 +28,13 @@ void BFS(const std::map<std::string, std::vector<std::string>> &adjacencyMap, st
     return;
 }
 
-/* // Old, I don't like how I implemented it. Proabably wrong and just real fuckin ugly
-void DFS(const std::map<std::string, std::vector<std::string>> &adjacencyMap, std::string start) {
-    std::set<std::string> visited;
-    std::string currentCity = start;
-    visited.insert(currentCity);
-    std::cout << currentCity << " ";
-
-    for (const auto& adjacentCity : adjacencyMap.at(currentCity)) {
-        if (visited.find(adjacentCity) == visited.end()) {
-            currentCity = adjacentCity;
-            visited.insert(adjacentCity);
-            std::cout << currentCity << " ";
-        }
-    }
-
-    std::cout << std::endl;
-}
-*/
-
 void DFSRecursive(const std::map<std::string, std::vector<std::string>> &adjacencyMap, std::string currentCity, std::set<std::string> &visited) {
     std::cout << currentCity << " ";
     visited.insert(currentCity);
-
+    // For the adjacent cities, select one
     for (const auto adjacentCity : adjacencyMap.at(currentCity)) {
         if (visited.find(adjacentCity) == visited.end()) {
+            // And then explore that city's adjacent cities, provided they haven't already been visited.
             DFSRecursive(adjacencyMap, adjacentCity, visited);
         }
     }
@@ -65,13 +50,14 @@ void DFS(const std::map<std::string, std::vector<std::string>> &adjacencyMap, st
 // Iterative Deepening DFS
 // https://www.geeksforgeeks.org/iterative-deepening-searchids-iterative-deepening-depth-first-searchiddfs/
 bool DLS(const std::map<std::string, std::vector<std::string>>& adjacencyMap, std::string currentCity, std::string goalCity, int limit, std::set<std::string> &visited) {
-    std::cout << currentCity << " ";
+    // Goal found
     if (currentCity == goalCity) {
-        return true;  // Goal found
+        return true;
     }
 
+    // Went too far from given depth limit
     if (limit <= 0) {
-        return false;  // Depth limit reached
+        return false;
     }
 
     visited.insert(currentCity);
@@ -91,13 +77,16 @@ bool IDDFS(const std::map<std::string, std::vector<std::string>> &adjacencyMap, 
 
     for (int depth = 0; depth <= maxDepth; depth++) {
         std::set<std::string> visited;
-        std::cout << "Depth: " << depth << " -> ";
 
         if (DLS(adjacencyMap, startCity, goalCity, depth, visited)) {
-            std::cout << "\nGoal found at depth " << depth << std::endl;
+            // Print the path taken by IDDFS
+            for(auto &city : visited) {
+                std::cout << city << " -> ";
+            }
+
+            std::cout << std::endl << "\nGoal found at depth " << depth << std::endl;
             return true;
         }
-        std::cout << std::endl;
     }
 
     std::cout << "Goal not found within depth " << maxDepth << std::endl;
@@ -117,10 +106,11 @@ double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
 // and a std::map<std::string, std::pair<double, double>> coordinateMap,
 // How would I implement the A* algorithm to find the optimal path from a startCity to an end City using C++?
 // Assume the following:
-// The adjacencyMap stores a city as it's key, and a list of all adjacent cities.
-// the coordinateMap stores a city as it's key, and a pair of it's x y coordinates.
+// The adjacencyMap stores a city as it's key, and a list of all adjacent cities for value.
+// the coordinateMap stores a city as it's key, and a pair of it's x y coordinates for value.
 // the data within these maps has already been filled
 // not using std namespace
+
 std::vector<std::string> AStarSearch(
     const std::map<std::string, std::vector<std::string>> &adjacencyMap,
     const std::map<std::string, std::pair<double, double>> &coordinateMap,
@@ -187,3 +177,4 @@ std::vector<std::string> AStarSearch(
     // If we reach here, no path was found
     return {};
 }
+

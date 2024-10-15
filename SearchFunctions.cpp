@@ -1,6 +1,6 @@
 #include "SearchFunctions.h"
 
-void BFS(const std::map<std::string, std::vector<std::string>> &adjacencyMap, std::string startCity) {
+void BFS(const std::map<std::string, std::vector<std::string>> &adjacencyMap, std::string startCity, std::string goalCity) {
 
     std::queue<std::string> toVisit;
     std::set<std::string> visited;
@@ -13,10 +13,14 @@ void BFS(const std::map<std::string, std::vector<std::string>> &adjacencyMap, st
         std::string currentCity = toVisit.front();
         // We visited it, now remove it
         toVisit.pop();
-        std::cout << currentCity << " ";
+        std::cout << currentCity << " -> ";
+        if(currentCity == goalCity) {
+            std::cout << " Goal was found " << std::endl;
+            return;
+        }
 
         // Look at the adjacent cities of the current city that was dequeued
-        for(const auto& adjacentCity : adjacencyMap.at(currentCity)) {
+        for(const auto &adjacentCity : adjacencyMap.at(currentCity)) {
             // If an adjacent city wasn't visited, then mark as visited and insert it to the queue
             if(visited.find(adjacentCity) == visited.end()) {
                 toVisit.push(adjacentCity);
@@ -28,28 +32,37 @@ void BFS(const std::map<std::string, std::vector<std::string>> &adjacencyMap, st
     return;
 }
 
-void DFSRecursive(const std::map<std::string, std::vector<std::string>> &adjacencyMap, std::string currentCity, std::set<std::string> &visited) {
-    std::cout << currentCity << " ";
+void DFSRecursive(const std::map<std::string, std::vector<std::string>> &adjacencyMap, std::string currentCity, std::set<std::string> &visited, std::string goalCity) {
     visited.insert(currentCity);
+
+    if(currentCity == goalCity) {
+        // Print the path we took
+        for(auto &city : visited) {
+            std::cout << city << " -> ";
+        }
+        std::cout << goalCity << " Goal was found " << std::endl;
+        return;
+    }
+
     // For the adjacent cities, select one
     for (const auto adjacentCity : adjacencyMap.at(currentCity)) {
         if (visited.find(adjacentCity) == visited.end()) {
             // And then explore that city's adjacent cities, provided they haven't already been visited.
-            DFSRecursive(adjacencyMap, adjacentCity, visited);
+            DFSRecursive(adjacencyMap, adjacentCity, visited, goalCity);
         }
     }
 }
 
-void DFS(const std::map<std::string, std::vector<std::string>> &adjacencyMap, std::string startCity) {
+void DFS(const std::map<std::string, std::vector<std::string>> &adjacencyMap, std::string startCity, std::string goalCity) {
     std::set<std::string> visited;
-    DFSRecursive(adjacencyMap, startCity, visited);
+    DFSRecursive(adjacencyMap, startCity, visited, goalCity);
     std::cout << std::endl;
 }
 
 
 // Iterative Deepening DFS
 // https://www.geeksforgeeks.org/iterative-deepening-searchids-iterative-deepening-depth-first-searchiddfs/
-bool DLS(const std::map<std::string, std::vector<std::string>>& adjacencyMap, std::string currentCity, std::string goalCity, int limit, std::set<std::string> &visited) {
+bool DLS(const std::map<std::string, std::vector<std::string>> &adjacencyMap, std::string currentCity, std::string goalCity, int limit, std::set<std::string> &visited) {
     // Goal found
     if (currentCity == goalCity) {
         return true;
@@ -126,7 +139,7 @@ std::vector<std::string> AStarSearch(
     std::map<std::string, std::string> cameFrom;
 
     // Initialize gScore with infinity and 0 for startCity
-    for (const auto& pair : adjacencyMap) {
+    for (const auto &pair : adjacencyMap) {
         gScore[pair.first] = std::numeric_limits<double>::infinity();
     }
     gScore[startCity] = 0;
@@ -151,25 +164,25 @@ std::vector<std::string> AStarSearch(
             return path;
         }
 
-        // Explore neighbors
-        for (const auto& neighbor : adjacencyMap.at(currentCity)) {
+        // Explore adjacent cities
+        for (const auto &adjacentCity : adjacencyMap.at(currentCity)) {
             double tentative_gScore = gScore[currentCity] + calculateDistance(
                                           coordinateMap.at(currentCity).first, coordinateMap.at(currentCity).second,
-                                          coordinateMap.at(neighbor).first, coordinateMap.at(neighbor).second
+                                          coordinateMap.at(adjacentCity).first, coordinateMap.at(adjacentCity).second
                                           );
 
-            // If this path to the neighbor is better than any previous one
-            if (tentative_gScore < gScore[neighbor]) {
-                cameFrom[neighbor] = currentCity;
-                gScore[neighbor] = tentative_gScore;
+            // If this path to the adjacent city is better than any previous one
+            if (tentative_gScore < gScore[adjacentCity]) {
+                cameFrom[adjacentCity] = currentCity;
+                gScore[adjacentCity] = tentative_gScore;
 
                 // f(n) = g(n) + h(n), where h(n) is the heuristic (Euclidean distance to goal)
                 double fScore = tentative_gScore + calculateDistance(
-                                    coordinateMap.at(neighbor).first, coordinateMap.at(neighbor).second,
+                                    coordinateMap.at(adjacentCity).first, coordinateMap.at(adjacentCity).second,
                                     coordinateMap.at(goalCity).first, coordinateMap.at(goalCity).second
                                     );
 
-                openSet.push({fScore, neighbor});
+                openSet.push({fScore, adjacentCity});
             }
         }
     }
@@ -178,3 +191,65 @@ std::vector<std::string> AStarSearch(
     return {};
 }
 
+std::vector<std::string> BestFirstSearch(
+    const std::map<std::string, std::vector<std::string>> &adjacencyMap,
+    const std::map<std::string, std::pair<double, double>> &coordinateMap,
+    const std::string startCity,
+    const std::string goalCity)
+{
+    // Priority queue to store (heuristic distance, city)
+    using CityInfo = std::pair<double, std::string>;
+    std::priority_queue<CityInfo, std::vector<CityInfo>, std::greater<CityInfo>> openSet;
+
+    // Set to store visited cities
+    std::set<std::string> visited;
+
+    // Map to track the path (for backtracking)
+    std::map<std::string, std::string> cameFrom;
+
+    // Push the start city into the priority queue with heuristic distance to goal
+    double hStart = calculateDistance(
+        coordinateMap.at(startCity).first, coordinateMap.at(startCity).second,
+        coordinateMap.at(goalCity).first, coordinateMap.at(goalCity).second
+        );
+    openSet.push({hStart, startCity});
+
+    while (!openSet.empty()) {
+        // Get the city with the lowest heuristic value
+        std::string currentCity = openSet.top().second;
+        openSet.pop();
+
+        // If we reached the goal, reconstruct the path
+        if (currentCity == goalCity) {
+            std::vector<std::string> path;
+            while (currentCity != startCity) {
+                path.push_back(currentCity);
+                currentCity = cameFrom[currentCity];
+            }
+            path.push_back(startCity);
+            std::reverse(path.begin(), path.end());
+            return path;
+        }
+
+        // Mark the current city as visited
+        visited.insert(currentCity);
+
+        // Explore adjacentCitys
+        for (const auto &adjacentCity : adjacencyMap.at(currentCity)) {
+            if (visited.find(adjacentCity) == visited.end()) {
+                // Calculate the heuristic for the adjacentCity
+                double distance = calculateDistance(
+                    coordinateMap.at(adjacentCity).first, coordinateMap.at(adjacentCity).second,
+                    coordinateMap.at(goalCity).first, coordinateMap.at(goalCity).second
+                    );
+
+                // Add the adjacent city to the priority queue and track the path
+                openSet.push({distance, adjacentCity});
+                cameFrom[adjacentCity] = currentCity;
+            }
+        }
+    }
+
+    // If no path is found, return an empty vector
+    return {};
+}
